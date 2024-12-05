@@ -137,14 +137,17 @@ echo [LOG] secrets.env を作成しました。
 
 :: requirements.txt の作成
 (
-echo # Required packages
-echo pandas
-echo pytest
-echo requests==2.31.0
-echo python-dotenv==1.0.0
-echo google-api-python-client==2.108.0
-echo google-auth-httplib2==0.1.1
-echo google-auth-oauthlib==1.1.0
+# Required packages
+pandas
+pytest
+requests==2.31.0
+python-dotenv==1.0.0
+google-api-python-client==2.108.0
+google-auth-httplib2==0.1.1
+google-auth-oauthlib==1.1.0
+anytree
+openai==1.55.0
+icecream
 ) > "%PROJECT_NAME%\requirements.txt"
 
 echo [LOG] requirements.txt を作成しました。
@@ -153,8 +156,10 @@ echo [LOG] requirements.txt を作成しました。
 echo [LOG] spec_tools スクリプトのコピーを開始します...
 
 :: コピー対象のファイルリスト
-set SPEC_TOOLS_FILES=generate_detailed_spec.py generate_spec.py merge_files.py prompt_generate_detailed_spec.txt prompt_requirements_spec.txt utils.py
+set SPEC_TOOLS_FILES=generate_detailed_spec.py generate_spec.py merge_files.py utils.py
+set PROMPT_DIR=prompt
 
+:: spec_tools ファイルのコピー
 for %%F in (%SPEC_TOOLS_FILES%) do (
     copy "%TEMPLATE_DIR%\spec_tools\%%F" "%PROJECT_NAME%\spec_tools\%%F" > nul
     if errorlevel 1 (
@@ -165,6 +170,19 @@ for %%F in (%SPEC_TOOLS_FILES%) do (
 )
 
 echo [LOG] spec_tools スクリプトをすべてコピーしました。
+
+:: prompt フォルダと配下のファイルをコピー
+if exist "%TEMPLATE_DIR%\%PROMPT_DIR%" (
+    xcopy "%TEMPLATE_DIR%\%PROMPT_DIR%" "%PROJECT_NAME%\%PROMPT_DIR%" /E /I /Y > nul
+    if errorlevel 1 (
+        echo [ERROR] prompt フォルダのコピーに失敗しました。終了します。
+        goto END
+    )
+    echo [LOG] prompt フォルダと配下のファイルをコピーしました。
+) else (
+    echo [ERROR] prompt フォルダが見つかりません。
+    goto END
+)
 
 :: src 内のファイル作成
 copy "%TEMPLATE_DIR%\python\main_template.py" "%PROJECT_NAME%\src\main.py" > nul
