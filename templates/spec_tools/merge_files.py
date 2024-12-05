@@ -1,4 +1,5 @@
 # merge_files.py
+
 import os
 import argparse
 from typing import Optional, List, Tuple
@@ -29,7 +30,7 @@ class PythonFileMerger:
             settings_path (str): 設定ファイルのパス。
             logger (Optional[logging.Logger]): 使用するロガー。指定がなければ新規作成。
         """
-        self.logger = logger or setup_logger("PythonFileMerger")
+        self.logger = logger or setup_logger("PythonFileMerger", log_file="merge_files.log")
         self.settings = read_settings(settings_path)
 
         self.project_dir = os.path.abspath(self.settings['source_directory'])
@@ -125,11 +126,11 @@ class PythonFileMerger:
             return None
 
 
-def merge_py_files(settings_path: str = 'config/settings.ini') -> Optional[str]:
+def merge_py_files(settings_path: str = 'config/settings.ini', logger: Optional[logging.Logger] = None) -> Optional[str]:
     """
     マージ処理のエントリーポイント。
     """
-    logger = setup_logger("merge_py_files")
+    logger = logger or setup_logger("merge_py_files", log_file="merge_py_files.log")
     logger.info("Pythonファイルのマージ処理を開始します。")
     try:
         merger = PythonFileMerger(settings_path=settings_path, logger=logger)
@@ -155,19 +156,20 @@ def parse_arguments() -> argparse.Namespace:
 
 def main():
     """
-    メイン関数。コマンドライン引数を解析し、マージ処理を実行する。
+    Main function to execute the Python file merging process.
     """
     args = parse_arguments()
+    log_dir = os.path.join(os.getcwd(), "\spec_tools\logs")  # "spec_tools" を削除
+    logger = setup_logger("merge_files", log_dir=log_dir, log_file="merge_files.log")
 
     try:
-        print("Starting merge_files.py...")
-        output_file = merge_py_files(settings_path=args.settings)
+        output_file = merge_py_files(settings_path=args.settings, logger=logger)
         if output_file:
-            print(f"Merge completed successfully. Output saved to: {output_file}")
+            logger.info(f"Python files successfully merged. Output saved to: {output_file}")
         else:
-            print("Merge failed. Check logs for details.")
+            logger.error("File merging failed. Check logs for more details.")
     except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+        logger.error(f"Unexpected error occurred: {e}")
 
 
 if __name__ == "__main__":

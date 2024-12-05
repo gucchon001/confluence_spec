@@ -22,7 +22,7 @@ def read_settings(settings_path: str = 'config/settings.ini') -> dict:
     default_settings = {
         'source_directory': '.',  # デフォルトのソースディレクトリ
         'output_file': 'merge.txt',  # デフォルトの出力ファイル名
-        'exclusions': 'venv,myenv,*__pycache__*,downloads,sample_file,*.log',  # 除外パターン
+        'exclusions': 'env,myenv,*__pycache__*,downloads,sample_file,*.log',  # 除外パターン
         'openai_api_key': '',  # デフォルトのOpenAI APIキー
         'openai_model': 'gpt-4o'  # デフォルトのOpenAIモデル
     }
@@ -105,41 +105,58 @@ def get_python_files(directory: str, exclude_patterns: List[str]) -> List[Tuple[
 # 以下は共通化された関数
 
 # utils.py の setup_logger 関数を更新
-def setup_logger(name: str, log_dir: str = "logs", prompt_dir: str = "prompt") -> logging.Logger:
-    """ロガーを設定し、返す関数"""
-    os.makedirs(log_dir, exist_ok=True)
-    os.makedirs(prompt_dir, exist_ok=True)
-    
-    log_filename = os.path.join(log_dir, f"{name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log")
-    prompt_filename = os.path.join(prompt_dir, f"{name}_prompt_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log")
-    
+def setup_logger(name: str, log_dir: Optional[str] = None, log_file: str = "merge_files.log") -> logging.Logger:
+    """
+    ロガーをセットアップします。
+
+    Args:
+        name (str): ロガーの名前。
+        log_dir (Optional[str]): ログファイルの保存ディレクトリ。
+        log_file (str): ログファイル名。
+
+    Returns:
+        logging.Logger: セットアップ済みのロガー。
+    """
+    if log_dir is None:
+        log_dir = os.path.join(os.getcwd(), "logs")  # デフォルトでカレントディレクトリ内の 'logs' フォルダを使用
+
+    try:
+        # ディレクトリが存在しない場合は作成
+        os.makedirs(log_dir, exist_ok=True)
+    except PermissionError as e:
+        print(f"ログディレクトリの作成に失敗しました: {log_dir}. エラー: {e}")
+        raise
+
+    # ログファイルパスを構築
+    log_path = os.path.join(log_dir, log_file)
+    print(f"Logging to: {log_path}")  # デバッグ用の出力
+
+    # ロガーを構築
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
 
-    # Prevent adding multiple handlers if the logger already has handlers
-    if not logger.handlers:
-        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-        prompt_formatter = logging.Formatter("%(message)s")  # プロンプト用はメッセージのみ
+    # 既存のハンドラーをクリア（重複ログを防ぐため）
+    if logger.hasHandlers():
+        logger.handlers.clear()
 
-        # コンソールハンドラ
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(logging.INFO)
-        console_handler.setFormatter(formatter)
+    try:
+        # ログハンドラーを設定
+        file_handler = logging.FileHandler(log_path, encoding='utf-8')
+    except PermissionError as e:
+        print(f"ログファイルの作成に失敗しました: {log_path}. エラー: {e}")
+        raise
+    except Exception as e:
+        print(f"ログファイルハンドラーの設定中にエラーが発生しました: {e}")
+        raise
 
-        # ファイルハンドラ（通常のログ）
-        file_handler = logging.FileHandler(log_filename, encoding="utf-8")
-        file_handler.setLevel(logging.DEBUG)
-        file_handler.setFormatter(formatter)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
 
-        # プロンプト用ファイルハンドラ
-        prompt_handler = logging.FileHandler(prompt_filename, encoding="utf-8")
-        prompt_handler.setLevel(logging.DEBUG)
-        prompt_handler.setFormatter(prompt_formatter)
-
-        # ハンドラをロガーに追加
-        logger.addHandler(console_handler)
-        logger.addHandler(file_handler)
-        logger.addHandler(prompt_handler)
+    # コンソールハンドラー（オプション）
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
 
     return logger
 

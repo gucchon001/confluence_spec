@@ -1,15 +1,15 @@
+#generate_detailed_spec.py
 import os
-import logging
+from utils import setup_logger  # setup_logger をインポート
 from dotenv import load_dotenv
 from icecream import ic
 from utils import read_file_safely, write_file_content, OpenAIConfig
 
-# ロガーの設定
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.DEBUG)
-
-# .envファイルを読み込む
+# 環境変数をロード
 load_dotenv(dotenv_path="config/secrets.env")
+
+# ロガーを設定
+logger = setup_logger("generate_detailed_spec", log_file="\spec_tools\generate_detailed_spec.log")
 
 class SpecificationGenerator:
     """仕様書生成を管理するクラス"""
@@ -93,10 +93,17 @@ class SpecificationGenerator:
             logger.error(f"プロンプトファイルの読み込みに失敗しました: {self.prompt_file}")
         return content or ""
 
-def generate_specification() -> str:
-    """generate_specification 関数"""
-    generator = SpecificationGenerator()
-    return generator.generate()
+def generate_detailed_specification():
+    """詳細仕様書を生成"""
+    try:
+        generator = SpecificationGenerator()
+        output_file = generator.generate()
+        if output_file:
+            logger.info(f"Detailed specification generated successfully. Output saved to: {output_file}")
+        else:
+            logger.error("Detailed specification generation failed. Check logs for details.")
+    except Exception as e:
+        logger.error(f"An unexpected error occurred: {e}")
 
 if __name__ == "__main__":
-    generate_specification()
+    generate_detailed_specification()
