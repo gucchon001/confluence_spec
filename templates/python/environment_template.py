@@ -1,4 +1,3 @@
-#enviroment.py
 import os
 from pathlib import Path
 from dotenv import load_dotenv
@@ -94,7 +93,9 @@ class EnvironmentUtils:
         """
         config_path = EnvironmentUtils.get_config_file()
         config = configparser.ConfigParser()
-        config.read(config_path, encoding='utf-8')  # エンコーディングを明示的に指定
+
+        # utf-8 エンコーディングで読み込む
+        config.read(config_path, encoding='utf-8')
 
         if not config.has_section(section):
             return default
@@ -143,13 +144,11 @@ class EnvironmentUtils:
         Raises:
             FileNotFoundError: ファイルが存在しない場合
         """
-        # 環境変数または設定ファイルから取得
         service_account_file = EnvironmentUtils.get_env_var(
             "SERVICE_ACCOUNT_FILE",
             default=EnvironmentUtils.get_config_value("GOOGLE", "service_account_file", default="config/service_account.json")
         )
 
-        # パスを解決
         return EnvironmentUtils.resolve_path(service_account_file)
 
     @staticmethod
