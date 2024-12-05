@@ -22,7 +22,7 @@ def read_settings(settings_path: str = 'config/settings.ini') -> dict:
     default_settings = {
         'source_directory': '.',  # デフォルトのソースディレクトリ
         'output_file': 'merge.txt',  # デフォルトの出力ファイル名
-        'exclusions': 'env,myenv,*__pycache__*,downloads,sample_file,*.log',  # 除外パターン
+        'exclusions': 'venv,myenv,*__pycache__*,downloads,sample_file,*.log',  # 除外パターン
         'openai_api_key': '',  # デフォルトのOpenAI APIキー
         'openai_model': 'gpt-4o'  # デフォルトのOpenAIモデル
     }
