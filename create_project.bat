@@ -101,7 +101,7 @@ echo [LOG] settings.ini ÇÃçÏê¨ÇäJénÇµÇ‹Ç∑...
 echo [demo]
 echo temp = "settings.ini"
 echo [DEFAULT]
-echo Exclusions = __pycache__,*.log,.env,.venv,*.pyc,*.pyo,*.tmp,.DS_Store,.git,.idea,.vscode
+echo Exclusions = __pycache__,*.log,.env,.venv,*.pyc,*.pyo,*.tmp,.DS_Store,.git,.idea,.vscode,venv
 echo.
 echo [development]
 echo DEBUG = True
