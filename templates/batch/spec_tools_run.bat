@@ -3,6 +3,8 @@ rem Ensure this file is saved with UTF-8 encoding
 @echo off
 setlocal enabledelayedexpansion
 
+chcp 65001 > nul
+
 :: スクリプト情報
 set "TOOLS_DIR=spec_tools"
 set "LOGS_DIR=%TOOLS_DIR%\logs"
