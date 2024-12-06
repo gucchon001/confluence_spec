@@ -158,7 +158,7 @@ echo google-api-python-client==2.108.0
 echo google-auth-httplib2==0.1.1
 echo google-auth-oauthlib==1.1.0
 echo anytree
-echo openai==1.55.0
+echo openai==1.55.3
 echo icecream
 ) > "%PROJECT_NAME%\requirements.txt"
 attrib -R "%PROJECT_NAME%\requirements.txt"
