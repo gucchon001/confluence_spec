@@ -26,7 +26,15 @@ var/
 
 # Credentials and Config
 json/*.json
-.env
+*.env
+config/*.env
+config/*.json
+
+# Ensure the parent directory (json/) itself is tracked
+!config/
+
+# Include JSON files starting with "prompt"
+!config/prompt*.json
 
 # IDE
 .idea/

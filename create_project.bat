@@ -142,7 +142,7 @@ echo SLACK_WEBHOOK=webhook_token
 echo SLACK_BOT_TOKEN=xoxb-xxxxxxxxtoken
 echo.
 echo # OPENAI
-echo OPEN_API_KEY=test_api_key
+echo OPENAI_API_KEY=test_api_key
 ) > "%PROJECT_NAME%\config\secrets.env"
 attrib -R "%PROJECT_NAME%\config\secrets.env"
 echo [LOG] secrets.env を作成しました。
