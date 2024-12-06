@@ -141,9 +141,8 @@ echo # Slack
 echo SLACK_WEBHOOK=webhook_token
 echo SLACK_BOT_TOKEN=xoxb-xxxxxxxxtoken
 echo.
-echo # Test
-echo TEST_API_KEY=test_api_key
-echo TEST_API_SECRET=test_api_secret
+echo # OPENAI
+echo OPEN_API_KEY=test_api_key
 ) > "%PROJECT_NAME%\config\secrets.env"
 attrib -R "%PROJECT_NAME%\config\secrets.env"
 echo [LOG] secrets.env を作成しました。
