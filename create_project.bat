@@ -218,6 +218,28 @@ attrib -R "%PROJECT_NAME%\src\utils\helpers.py"
 
 echo [LOG] src ディレクトリ内のファイル作成を完了しました。
 
+:: tests/conftest.py の作成
+echo [LOG] tests/conftest.py の作成を開始します...
+(
+echo import sys
+echo from pathlib import Path
+echo.
+echo # プロジェクトルートのパスを取得
+echo project_root = Path(__file__).resolve().parent.parent
+echo.
+echo # src ディレクトリをPYTHONPATHに追加
+echo src_path = project_root / 'src'
+echo if src_path not in sys.path:
+echo     sys.path.insert(0, str(src_path))
+) > "%PROJECT_NAME%\tests\conftest.py"
+
+if errorlevel 1 (
+    echo [ERROR] tests/conftest.py の作成に失敗しました。終了します。
+    goto END
+)
+attrib -R "%PROJECT_NAME%\tests\conftest.py"
+echo [LOG] tests/conftest.py を作成しました。
+
 :: run_dev.bat のコピー
 copy "%TEMPLATE_DIR%\batch\run_dev.bat" "%PROJECT_NAME%\run_dev.bat" > nul
 if errorlevel 1 echo [ERROR] run_dev.bat のコピーに失敗しました。 && goto END
