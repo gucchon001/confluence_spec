@@ -29,6 +29,7 @@ json/*.json
 *.env
 config/*.env
 config/*.json
+config/*.pem
 
 # Ensure the parent directory (json/) itself is tracked
 !config/

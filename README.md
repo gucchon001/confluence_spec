@@ -1,4 +1,3 @@
-
 # プロジェクト生成スクリプト
 
 このフォルダには、新しいPythonプロジェクトを生成するためのテンプレートとスクリプトが含まれています。
@@ -11,24 +10,19 @@
 ├── templates/                  # テンプレートファイル
 │   ├── README.md               # プロジェクトREADMEテンプレート
 │   ├── python/                 # Pythonソースコードテンプレート
-│   │   ├── config_template.py
+│   │   ├── environment_template.py
 │   │   ├── logging_config_template.py
 │   │   └── main_template.py
-│   ├── spec_tools/             # 仕様書生成ツールテンプレート
-│   │   ├── merge_files.py
-│   │   ├── generate_spec.py
-│   │   ├── generate_detailed_spec.py
-│   │   └── utils.py
+│   ├── tests/                  # テストコードテンプレート
 │   └── batch/                  # バッチファイルテンプレート
-│       ├── run.bat
-│       └── spec_tools_run.bat
+│       ├── run.bat             # 基本実行用バッチファイル
+│       └── run_dev.bat         # 開発環境用高機能バッチファイル
 ```
 
 ## 使用方法
 
 1. `create_project.bat` を実行してプロジェクトの基本構造を生成します。
-2. 生成されたプロジェクトの中で `run.bat` を実行して環境を設定し、アプリケーションを起動します。
-3. 必要に応じて `spec_tools_run.bat` を使用し、仕様書生成ツールを実行します。
+2. 生成されたプロジェクトの中で `run.bat` または `run_dev.bat` を実行して環境を設定し、アプリケーションを起動します。
 
 ## 生成されるプロジェクト構造
 
@@ -36,14 +30,17 @@
 project_name/
 ├── README.md                 # プロジェクト概要と使い方
 ├── src/
+│   ├── __init__.py           # Pythonパッケージ化
 │   ├── main.py               # プログラムのエントリーポイント
 │   ├── utils/
-│   │   ├── environment.py         # 設定管理
+│   │   ├── __init__.py       # Pythonパッケージ化
+│   │   ├── environment.py    # 設定管理
 │   │   └── logging_config.py # ログ設定
 │   └── modules/
+│       ├── __init__.py       # Pythonパッケージ化
 │       └── module1.py        # サンプルモジュール
 ├── tests/
-│   ├── __init__.py           # テストモジュール
+│   ├── __init__.py           # テストパッケージ化
 ├── logs/
 │   ├── .gitkeep              # 空ディレクトリをGitで追跡
 ├── docs/
@@ -53,17 +50,28 @@ project_name/
 │   └── secrets.env           # 機密情報 (例: APIキー)
 ├── data/
 │   ├── .gitkeep              # 空ディレクトリをGitで追跡
-├── spec_tools/
-│   ├── merge_files.py
-│   ├── generate_spec.py
-│   ├── generate_detailed_spec.py
-│   ├── utils.py
-│   └── logs/
-│       └── .gitkeep
 ├── requirements.txt          # 必要なパッケージ
-├── run.bat                   # 実行用バッチファイル
-└── spec_tools_run.bat        # 仕様書生成用バッチファイル
+├── run.bat                   # 基本実行用バッチファイル
+└── run_dev.bat               # 開発環境用高機能バッチファイル
 ```
+
+## 実行スクリプトの違い
+
+プロジェクトには2つの実行スクリプトが含まれています：
+
+### run.bat
+- 基本的な実行機能を提供
+- 仮想環境のアクティブ化と指定されたスクリプトの実行
+- ファイルパスとして直接スクリプトを実行（例：`src\main.py`）
+- シンプルで軽量な実行環境が必要な場合に使用
+
+### run_dev.bat
+- 開発時に便利な高度な機能を提供
+- Pythonモジュールとしてスクリプトを実行（`-m` オプション使用、例：`src.main`）
+- 環境選択機能（development/production）
+- requirements.txtの変更検知と自動パッケージインストール
+- テストモードの自動設定（development環境選択時）
+- 開発作業やテスト実行時に推奨
 
 ## 注意事項
 
@@ -71,6 +79,7 @@ project_name/
 - 既存のプロジェクト名と重複する場合はエラーとなります。
 - `secrets.env` には機密情報が含まれるため、`.gitignore` に追加されています。
 - プロジェクトを生成するには `create_project.bat` を管理者権限で実行することを推奨します。
+- `src/` および `tests/` ディレクトリには `__init__.py` ファイルが自動生成され、Pythonパッケージとして認識されます。
 
 ## サポート情報
 

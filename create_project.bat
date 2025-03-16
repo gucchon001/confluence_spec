@@ -72,8 +72,6 @@ mkdir "%PROJECT_NAME%\data"
 mkdir "%PROJECT_NAME%\logs"
 mkdir "%PROJECT_NAME%\config"
 mkdir "%PROJECT_NAME%\docs"
-mkdir "%PROJECT_NAME%\spec_tools"
-mkdir "%PROJECT_NAME%\spec_tools\logs"
 
 echo [LOG] サブディレクトリの作成完了
 
@@ -101,8 +99,6 @@ echo [LOG] __init__.pyファイルの作成完了
 :: 空ディレクトリの追跡用 .gitkeep 作成
 echo. > "%PROJECT_NAME%\logs\.gitkeep"
 attrib -R "%PROJECT_NAME%\logs\.gitkeep"
-echo. > "%PROJECT_NAME%\spec_tools\logs\.gitkeep"
-attrib -R "%PROJECT_NAME%\spec_tools\logs\.gitkeep"
 echo. > "%PROJECT_NAME%\docs\.gitkeep"
 attrib -R "%PROJECT_NAME%\docs\.gitkeep"
 
@@ -157,45 +153,9 @@ echo google-api-python-client==2.108.0
 echo google-auth-httplib2==0.1.1
 echo google-auth-oauthlib==1.1.0
 echo anytree
-echo openai==1.55.3
-echo icecream
 ) > "%PROJECT_NAME%\requirements.txt"
 attrib -R "%PROJECT_NAME%\requirements.txt"
 echo [LOG] requirements.txt を作成しました。
-
-:: spec_tools スクリプトのコピー
-echo [LOG] spec_tools スクリプトのコピーを開始します...
-
-:: コピー対象のファイルリスト
-set SPEC_TOOLS_FILES=generate_detailed_spec.py generate_spec.py merge_files.py utils.py
-set PROMPT_DIR=spec_tools\prompt
-
-:: spec_tools ファイルのコピー
-for %%F in (%SPEC_TOOLS_FILES%) do (
-    copy "%TEMPLATE_DIR%\spec_tools\%%F" "%PROJECT_NAME%\spec_tools\%%F" > nul
-    if errorlevel 1 (
-        echo [ERROR] %%F のコピーに失敗しました。終了します。
-        goto END
-    )
-    attrib -R "%PROJECT_NAME%\spec_tools\%%F"
-    echo [LOG] %%F をコピーしました。
-)
-
-echo [LOG] spec_tools スクリプトをすべてコピーしました。
-
-:: prompt フォルダと配下のファイルをコピー
-if exist "%TEMPLATE_DIR%\%PROMPT_DIR%" (
-    xcopy "%TEMPLATE_DIR%\%PROMPT_DIR%" "%PROJECT_NAME%\%PROMPT_DIR%" /E /I /Y > nul
-    if errorlevel 1 (
-        echo [ERROR] prompt フォルダのコピーに失敗しました。終了します。
-        goto END
-    )
-    attrib -R "%PROJECT_NAME%\%PROMPT_DIR%\*" /S /D
-    echo [LOG] prompt フォルダと配下のファイルをコピーしました。
-) else (
-    echo [ERROR] prompt フォルダが見つかりません。
-    goto END
-)
 
 :: src 内のファイル作成
 copy "%TEMPLATE_DIR%\python\main_template.py" "%PROJECT_NAME%\src\main.py" > nul
@@ -218,27 +178,15 @@ attrib -R "%PROJECT_NAME%\src\utils\helpers.py"
 
 echo [LOG] src ディレクトリ内のファイル作成を完了しました。
 
-:: tests/conftest.py の作成
-echo [LOG] tests/conftest.py の作成を開始します...
-(
-echo import sys
-echo from pathlib import Path
-echo.
-echo # プロジェクトルートのパスを取得
-echo project_root = Path(__file__).resolve().parent.parent
-echo.
-echo # src ディレクトリをPYTHONPATHに追加
-echo src_path = project_root / 'src'
-echo if src_path not in sys.path:
-echo     sys.path.insert(0, str(src_path))
-) > "%PROJECT_NAME%\tests\conftest.py"
-
+:: tests フォルダのコピー
+echo [LOG] tests フォルダをテンプレートからコピーします...
+xcopy "%TEMPLATE_DIR%\tests" "%PROJECT_NAME%\tests" /E /I /Y > nul
 if errorlevel 1 (
-    echo [ERROR] tests/conftest.py の作成に失敗しました。終了します。
+    echo [ERROR] tests フォルダのコピーに失敗しました。終了します。
     goto END
 )
-attrib -R "%PROJECT_NAME%\tests\conftest.py"
-echo [LOG] tests/conftest.py を作成しました。
+attrib -R "%PROJECT_NAME%\tests\*" /S /D
+echo [LOG] tests フォルダをコピーしました。
 
 :: run_dev.bat のコピー
 copy "%TEMPLATE_DIR%\batch\run_dev.bat" "%PROJECT_NAME%\run_dev.bat" > nul
@@ -252,17 +200,57 @@ if errorlevel 1 echo [ERROR] run.bat のコピーに失敗しました。 && got
 attrib -R "%PROJECT_NAME%\run.bat"
 echo [LOG] run.bat をプロジェクトにコピーしました。
 
-:: spec_tools_run.bat のコピー
-copy "%TEMPLATE_DIR%\batch\spec_tools_run.bat" "%PROJECT_NAME%\spec_tools_run.bat" > nul
-if errorlevel 1 echo [ERROR] spec_tools_run.bat のコピーに失敗しました。 && goto END
-attrib -R "%PROJECT_NAME%\spec_tools_run.bat"
-echo [LOG] spec_tools_run.bat をプロジェクトにコピーしました。
-
 :: .gitignore のコピー
 copy "%TEMPLATE_DIR%\.gitignore" "%PROJECT_NAME%\.gitignore" > nul
 if errorlevel 1 echo [ERROR] .gitignore のコピーに失敗しました。 && goto END
 attrib -R "%PROJECT_NAME%\.gitignore"
 echo [LOG] .gitignore をプロジェクトにコピーしました。
+
+:: Git 初期化と改行コード設定
+echo [LOG] Git リポジトリを初期化します...
+cd "%PROJECT_NAME%"
+git init > nul
+if errorlevel 1 (
+    echo [WARNING] Git リポジトリの初期化に失敗しました。
+) else (
+    echo [LOG] Git リポジトリを初期化しました。
+    
+    :: 改行コード設定
+    git config core.autocrlf true > nul
+    if errorlevel 1 (
+        echo [WARNING] Git の改行コード設定に失敗しました。
+    ) else (
+        echo [LOG] Git の改行コード設定を完了しました。
+    )
+    
+    :: .gitattributes ファイルの作成
+    echo [LOG] .gitattributes ファイルを作成します...
+    (
+    echo # Auto detect text files and perform LF normalization
+    echo * text=auto
+    echo.
+    echo # Explicitly declare text files you want to always be normalized and converted
+    echo # to native line endings on checkout.
+    echo *.py text
+    echo *.md text
+    echo *.txt text
+    echo *.ini text
+    echo *.env text
+    echo.
+    echo # Declare files that will always have CRLF line endings on checkout.
+    echo *.bat text eol=crlf
+    echo.
+    echo # Denote all files that are truly binary and should not be modified.
+    echo *.png binary
+    echo *.jpg binary
+    echo *.jpeg binary
+    echo *.gif binary
+    echo *.pdf binary
+    echo *.zip binary
+    ) > .gitattributes
+    echo [LOG] .gitattributes ファイルを作成しました。
+)
+cd ..
 
 :: プロジェクト内の全ファイルとディレクトリの読み取り専用属性を解除
 echo [LOG] すべてのファイルから読み取り専用属性を解除します...
@@ -270,7 +258,6 @@ attrib -R /S /D "%PROJECT_NAME%\*"
 
 :: 作成完了メッセージ
 echo プロジェクト %PROJECT_NAME% の基本構造を作成しました。
-echo 作成されたディレクトリ: %CD%\%PROJECT_NAME%
 
 :END
 echo [LOG] スクリプトを終了します。
