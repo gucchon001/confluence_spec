@@ -145,14 +145,36 @@ echo [LOG] secrets.env を作成しました。
 
 :: requirements.txt の作成
 (
-echo pandas
-echo pytest
+echo # データ処理・分析
+echo numpy==1.26.2
+echo pandas==2.1.3
+echo matplotlib==3.8.2
+echo openpyxl==3.1.2
+echo.
+echo # API・通信
 echo requests==2.31.0
+echo.
+echo # 設定・環境
 echo python-dotenv==1.0.0
+echo pyyaml==6.0.1
+echo.
+echo # Google API
 echo google-api-python-client==2.108.0
 echo google-auth-httplib2==0.1.1
 echo google-auth-oauthlib==1.1.0
-echo anytree
+echo.
+echo # ユーティリティ
+echo anytree==2.9.1
+echo tqdm==4.66.1
+echo loguru==0.7.2
+echo.
+echo # 開発・テスト
+echo pytest==7.4.3
+echo pytest-cov==4.1.0
+echo pytest-mock==3.12.0
+echo black==23.11.0
+echo flake8==6.1.0
+echo mypy==1.7.1
 ) > "%PROJECT_NAME%\requirements.txt"
 attrib -R "%PROJECT_NAME%\requirements.txt"
 echo [LOG] requirements.txt を作成しました。
@@ -199,6 +221,12 @@ copy "%TEMPLATE_DIR%\batch\run.bat" "%PROJECT_NAME%\run.bat" > nul
 if errorlevel 1 echo [ERROR] run.bat のコピーに失敗しました。 && goto END
 attrib -R "%PROJECT_NAME%\run.bat"
 echo [LOG] run.bat をプロジェクトにコピーしました。
+
+:: update_libraries.bat のコピー
+copy "%TEMPLATE_DIR%\batch\update_libraries.bat" "%PROJECT_NAME%\update_libraries.bat" > nul
+if errorlevel 1 echo [ERROR] update_libraries.bat のコピーに失敗しました。 && goto END
+attrib -R "%PROJECT_NAME%\update_libraries.bat"
+echo [LOG] update_libraries.bat をプロジェクトにコピーしました。
 
 :: .gitignore のコピー
 copy "%TEMPLATE_DIR%\.gitignore" "%PROJECT_NAME%\.gitignore" > nul
