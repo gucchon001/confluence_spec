@@ -154,30 +154,19 @@ echo [LOG] secrets.env を作成しました。
 
 :: requirements.txt の作成
 (
-echo # データ処理・分析
 echo numpy==1.26.2
 echo pandas==2.1.3
 echo matplotlib==3.8.2
 echo openpyxl==3.1.2
-echo.
-echo # API・通信
 echo requests==2.31.0
-echo.
-echo # 設定・環境
 echo python-dotenv==1.0.0
 echo pyyaml==6.0.1
-echo.
-echo # Google API
 echo google-api-python-client==2.108.0
 echo google-auth-httplib2==0.1.1
 echo google-auth-oauthlib==1.1.0
-echo.
-echo # ユーティリティ
 echo anytree==2.9.1
 echo tqdm==4.66.1
 echo loguru==0.7.2
-echo.
-echo # 開発・テスト
 echo pytest==7.4.3
 echo pytest-cov==4.1.0
 echo pytest-mock==3.12.0
