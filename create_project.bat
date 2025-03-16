@@ -104,6 +104,15 @@ attrib -R "%PROJECT_NAME%\docs\.gitkeep"
 
 echo [LOG] 空ディレクトリの追跡用 .gitkeep を作成しました。
 
+:: spec.md のコピー
+copy "%TEMPLATE_DIR%\docs\spec.md" "%PROJECT_NAME%\docs\spec.md" > nul
+if errorlevel 1 (
+    echo [WARNING] spec.md のコピーに失敗しました。テンプレートが存在しない可能性があります。
+) else (
+    attrib -R "%PROJECT_NAME%\docs\spec.md"
+    echo [LOG] spec.md をコピーしました。
+)
+
 :: settings.ini の作成
 echo [LOG] settings.ini の作成を開始します...
 (
