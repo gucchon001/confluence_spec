@@ -62,7 +62,7 @@ class Browser:
     - エラー通知（オプション）
     - ページの解析と要素の操作
     """
-
+    
     def __init__(
         self, 
         logger: Optional[logging.Logger] = None,
@@ -108,7 +108,7 @@ class Browser:
             self.headless = headless_str.lower() == "true"
         else:
             self.headless = headless
-            
+        
         # スクリーンショット設定を読み込む
         self._load_screenshot_settings()
             
@@ -197,7 +197,7 @@ class Browser:
         # 設定辞書からの取得を試みる
         if section in self.config and key in self.config[section]:
             return self.config[section][key]
-            
+        
         # env ユーティリティを使用できる場合
         if ENV_UTILS_AVAILABLE:
             return env.get_config_value(section, key, default)
@@ -206,7 +206,7 @@ class Browser:
         env_var = f"{section.upper()}_{key.upper()}"
         if env_var in os.environ:
             return os.environ[env_var]
-            
+        
         return default
     
     def _load_screenshot_settings(self):
@@ -268,29 +268,29 @@ class Browser:
                 
                 # 各行を処理
                 for row in reader:
-                    group = row['group']
-                    name = row['name']
+                        group = row['group']
+                        name = row['name']
                     selector_type = row['selector_type']
                     selector_value = row['selector_value']
                     description = row.get('description', '')
-                    
+                        
                     # グループが存在しなければ作成
-                    if group not in self.selectors:
-                        self.selectors[group] = {}
-                    
+                        if group not in self.selectors:
+                            self.selectors[group] = {}
+                        
                     # セレクタを追加
-                    self.selectors[group][name] = {
+                        self.selectors[group][name] = {
                         'selector_type': selector_type,
                         'selector_value': selector_value,
                         'description': description
-                    }
+                        }
             
             self.logger.info(f"セレクタをロードしました: {len(self.selectors)} グループ")
             
             # ロードしたセレクタの詳細をデバッグ出力
             for group, selectors in self.selectors.items():
                 self.logger.debug(f"グループ '{group}': {len(selectors)} セレクタ")
-                
+            
         except Exception as e:
             self.logger.error(f"セレクタの読み込み中にエラーが発生しました: {str(e)}")
             self._setup_fallback_selectors()
@@ -352,15 +352,15 @@ class Browser:
             self.logger.info("ブラウザの初期化に成功しました")
             return True
             
-        except Exception as e:
+            except Exception as e:
             self.logger.error(f"ブラウザのセットアップ中にエラーが発生しました: {str(e)}")
             self.logger.debug(traceback.format_exc())
             
             if self.notifier:
                 self._notify_error("ブラウザのセットアップに失敗しました", exception=e)
                 
-            return False
-    
+            return False 
+
     def navigate_to(self, url):
         """
         指定したURLに移動する
@@ -373,11 +373,11 @@ class Browser:
         """
         if not self.driver:
             self.logger.error("ドライバーが初期化されていません。setup()を先に呼び出してください。")
-            return False
-            
+                return False
+                
         try:
-            self.logger.info(f"URLに移動します: {url}")
-            self.driver.get(url)
+                self.logger.info(f"URLに移動します: {url}")
+                self.driver.get(url)
             
             # ページ読み込みの完了を待機
             if not self.wait_for_page_load():
@@ -391,7 +391,7 @@ class Browser:
             if self.auto_screenshot:
                 screenshot_name = f"navigate_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
                 self.save_screenshot(screenshot_name, append_url=True)
-                
+            
             return True
             
         except Exception as e:
@@ -404,7 +404,7 @@ class Browser:
                 self._notify_error("ページへの移動に失敗しました", exception=e, context={"url": url})
                 
             return False
-
+    
     def _get_by_type(self, selector_type):
         """
         セレクタタイプに対応するByタイプを返す
@@ -436,7 +436,7 @@ class Browser:
         else:
             self.logger.warning(f"未知のセレクタタイプです: {selector_type}")
             return None
-    
+
     def get_element(self, group, name, wait_time=None, visible=False):
         """
         セレクタグループと名前を使用して要素を取得する
@@ -453,7 +453,7 @@ class Browser:
         if not self.driver:
             self.logger.error("ドライバーが初期化されていません")
             return None
-            
+        
         # セレクタが読み込まれていない場合はロード
         if not self.selectors:
             self._load_selectors()
@@ -465,7 +465,7 @@ class Browser:
         
         # wait_for_element を利用して要素を取得
         return self.wait_for_element((group, name), timeout=wait_time, visible=visible)
-
+    
     def save_screenshot(self, filename, append_timestamp=False, append_url=False, custom_dir=None):
         """
         スクリーンショットを保存する
@@ -482,7 +482,7 @@ class Browser:
         if not self.driver:
             self.logger.error("ドライバーが初期化されていません")
             return None
-            
+        
         try:
             # 保存先ディレクトリの設定
             save_dir = custom_dir if custom_dir else self.screenshot_dir
@@ -533,7 +533,7 @@ class Browser:
         except Exception as e:
             self.logger.error(f"スクリーンショットの保存中にエラーが発生しました: {str(e)}")
             return None
-
+    
     def _notify_error(self, error_message, exception=None, context=None):
         """
         エラーを通知する
@@ -580,7 +580,7 @@ class Browser:
             
         except Exception as e:
             self.logger.error(f"エラー通知の送信中にエラーが発生しました: {str(e)}")
-
+    
     def quit(self, error_message=None, exception=None, context=None):
         """
         ブラウザを終了する
@@ -600,7 +600,7 @@ class Browser:
                 self.logger.info("ブラウザを終了します")
                 self.driver.quit()
                 self.driver = None
-                
+            
         except Exception as e:
             self.logger.error(f"ブラウザの終了中にエラーが発生しました: {str(e)}")
             
@@ -834,7 +834,7 @@ class Browser:
     def _get_page_status(self):
         """
         ページのステータス情報を取得する
-        
+            
         Returns:
             dict: ページステータス情報
         """
@@ -912,7 +912,7 @@ class Browser:
         except TimeoutException:
             # アラートがない場合は正常
             pass
-        except Exception as e:
+            except Exception as e:
             self.logger.error(f"アラート確認中にエラーが発生しました: {str(e)}")
             
         return alert_info
@@ -931,8 +931,8 @@ class Browser:
         Returns:
             list: 一致する要素のリスト
         """
-        if not self.driver:
-            self.logger.error("WebDriverが初期化されていません")
+            if not self.driver:
+                self.logger.error("WebDriverが初期化されていません")
             return []
             
         # 検索対象の要素タイプ設定
@@ -988,8 +988,8 @@ class Browser:
         Returns:
             dict: タイプ別のインタラクティブ要素リスト
         """
-        if not self.driver:
-            self.logger.error("WebDriverが初期化されていません")
+            if not self.driver:
+                self.logger.error("WebDriverが初期化されていません")
             return {}
             
         interactive_elements = {
@@ -1093,7 +1093,7 @@ class Browser:
             
             # JavaScriptによる非同期処理の完了を確認（オプション）
             try:
-                self.driver.execute_script("return (typeof jQuery === 'undefined' || jQuery.active === 0)")
+            self.driver.execute_script("return (typeof jQuery === 'undefined' || jQuery.active === 0)")
             except:
                 pass  # jQueryが未定義の場合は無視
             
@@ -1111,7 +1111,7 @@ class Browser:
             current_handles (list, optional): 切り替え前のウィンドウハンドルリスト
             timeout (int, optional): 新しいウィンドウが開くまで待機する時間(秒)
             retries (int, optional): 失敗時のリトライ回数
-            
+        
         Returns:
             bool: 切り替えが成功した場合はTrue、失敗した場合はFalse
         """
@@ -1174,7 +1174,7 @@ class Browser:
                 
                 return True
                 
-            except Exception as e:
+        except Exception as e:
                 retry_count += 1
                 self.logger.warning(f"新しいウィンドウへの切り替え中にエラーが発生しました (リトライ {retry_count}/{retries}): {str(e)}")
                 
@@ -1187,7 +1187,7 @@ class Browser:
                 time.sleep(2)
         
         return False
-        
+
     def get_page_source(self):
         """
         現在のページのHTMLソースを取得する
@@ -1279,7 +1279,7 @@ class Browser:
             
         except Exception as e:
             self.logger.warning(f"ページ変更検出中にエラーが発生しました: {str(e)}")
-            return False
+            return False 
 
     def _analyze_page_details(self, soup):
         """

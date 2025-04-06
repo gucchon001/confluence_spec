@@ -44,6 +44,7 @@ if "%~1"=="--help" (
     echo   force-pull            : リモートの最新状態に強制的に合わせる
     echo   full-push             : 変更をadd、commit、pushまで一気に実行
     echo   ai-full-push          : 変更をadd、AI生成メッセージでcommit、pushまで一気に実行
+    echo   git-init              : リポジトリ初期化、GitHub URL設定、機密情報チェック、初期コミットまで実行
     echo.
     echo オプション:
     echo   --repo ^<dir^>         : Gitリポジトリのパスを指定 (デフォルト: カレントディレクトリ)
@@ -147,6 +148,11 @@ if "%~1"=="ai-full-push" (
     shift
     goto parse_args
 )
+if "%~1"=="git-init" (
+    set "COMMAND=git-init"
+    shift
+    goto parse_args
+)
 
 rem オプション
 if "%~1"=="--repo" (
@@ -229,8 +235,9 @@ if "%COMMAND%"=="" (
     echo   13. 機密情報のチェック (プッシュ前にAPIキーなどをチェック)
     echo   14. リモートの最新状態に強制的に合わせる (force-pull)
     echo   15. 変更をadd、commit、pushまで一気に実行 (full-push)
+    echo   16. リポジトリ初期化と初期コミット (git-init)
     
-    set /p "MENU_CHOICE=選択肢を入力してください (1-15): "
+    set /p "MENU_CHOICE=選択肢を入力してください (1-16): "
     
     if "%MENU_CHOICE%"=="1" set "COMMAND=ai-commit"
     if "%MENU_CHOICE%"=="2" set "COMMAND=analyze-pr"
@@ -247,9 +254,10 @@ if "%COMMAND%"=="" (
     if "%MENU_CHOICE%"=="13" set "COMMAND=check-sensitive-info"
     if "%MENU_CHOICE%"=="14" set "COMMAND=force-pull"
     if "%MENU_CHOICE%"=="15" set "COMMAND=full-push"
+    if "%MENU_CHOICE%"=="16" set "COMMAND=git-init"
     
     if not defined COMMAND (
-        echo エラー: 無効な選択肢です。1-15の数字を入力してください。
+        echo エラー: 無効な選択肢です。1-16の数字を入力してください。
         pause
         exit /b 1
     )
@@ -422,6 +430,59 @@ if "%COMMAND%"=="ai-full-push" (
         echo エラー: AI支援全処理プッシュの実行中にエラーが発生しました。
         set /a ERROR_COUNT+=1
     )
+)
+
+if "%COMMAND%"=="git-init" (
+    echo リポジトリの初期化と設定を行います...
+    
+    rem 1. git initで初期化
+    echo Gitリポジトリを初期化しています...
+    git init
+    if !ERRORLEVEL! neq 0 (
+        echo エラー: リポジトリの初期化に失敗しました。
+        goto END
+    )
+    
+    rem 2. GitHub URLの入力プロンプト
+    set /p "GITHUB_URL=GitHub リポジトリURLを入力してください (例: https://github.com/username/repo.git): "
+    if "!GITHUB_URL!"=="" (
+        echo エラー: GitHub URLは必須です。
+        goto END
+    )
+    
+    rem 3. リモートリポジトリの設定
+    echo リモートリポジトリを設定しています...
+    git remote add origin !GITHUB_URL!
+    if !ERRORLEVEL! neq 0 (
+        echo エラー: リモートリポジトリの設定に失敗しました。
+        goto END
+    )
+    
+    rem 4. 機密情報チェック
+    echo 機密情報のチェックを実行しています...
+    %PYTHON_CMD% "%OPENAI_SCRIPT_PATH%" check-sensitive-info --repo "%REPO_PATH%"
+    if !ERRORLEVEL! neq 0 (
+        echo 警告: 機密情報が検出されました。処理を続行する前に確認してください。
+        set /p "CONTINUE_CHOICE=続行しますか？ (Y/N): "
+        if /i "!CONTINUE_CHOICE!"=="Y" (
+            echo 処理を続行します...
+        ) else (
+            echo 処理を中止します。
+            goto END
+        )
+    )
+    
+    rem 5. 初期コミットとプッシュ（AIコミットメッセージを使用）
+    echo 初期コミットを実行しています...
+    %PYTHON_CMD% "%OPENAI_SCRIPT_PATH%" ai-full-push --repo "%REPO_PATH%" --branch main
+    if !ERRORLEVEL! neq 0 (
+        echo エラー: 初期コミットとプッシュに失敗しました。
+        goto END
+    )
+    
+    echo リポジトリの初期化と初期コミットが完了しました。
+    echo リモートリポジトリURL: !GITHUB_URL!
+    goto END
 )
 
 rem 標準Gitコマンドの場合

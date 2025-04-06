@@ -12,12 +12,16 @@
 │   ├── python/                 # Pythonソースコードテンプレート
 │   │   ├── environment_template.py
 │   │   ├── logging_config_template.py
-│   │   └── main_template.py
+│   │   ├── main_template.py
+│   │   └── utils/              # ユーティリティスクリプト
+│   │       ├── git_batch.py    # Git一括操作モジュール
+│   │       └── openai_git_helper.py # OpenAI API連携Git支援モジュール
 │   ├── tests/                  # テストコードテンプレート
 │   └── batch/                  # バッチファイルテンプレート
 │       ├── run.bat             # 基本実行用バッチファイル
 │       ├── run_dev.bat         # 開発環境用高機能バッチファイル
-│       └── update_libraries.bat # ライブラリアップデート用バッチファイル
+│       ├── update_libraries.bat # ライブラリアップデート用バッチファイル
+│       └── run_git_ai.bat      # AI支援Git操作バッチファイル
 ```
 
 ## 使用方法
@@ -25,6 +29,7 @@
 1. `create_project.bat` を実行してプロジェクトの基本構造を生成します。
 2. 生成されたプロジェクトの中で `run.bat` または `run_dev.bat` を実行して環境を設定し、アプリケーションを起動します。
 3. ライブラリを最新版にアップデートする場合は `update_libraries.bat` を実行します。
+4. Git操作を一括で行う場合や、AI支援機能を使用するには `run_git_ai.bat` を実行します。
 
 ## 生成されるプロジェクト構造
 
@@ -37,7 +42,9 @@ project_name/
 │   ├── utils/
 │   │   ├── __init__.py       # Pythonパッケージ化
 │   │   ├── environment.py    # 設定管理
-│   │   └── logging_config.py # ログ設定
+│   │   ├── logging_config.py # ログ設定
+│   │   ├── git_batch.py      # Git一括操作モジュール
+│   │   └── openai_git_helper.py # OpenAI API連携Git支援モジュール
 │   └── modules/
 │       ├── __init__.py       # Pythonパッケージ化
 │       └── module1.py        # サンプルモジュール
@@ -49,13 +56,14 @@ project_name/
 │   ├── .gitkeep              # 空ディレクトリをGitで追跡
 ├── config/
 │   ├── settings.ini          # 環境設定
-│   └── secrets.env           # 機密情報 (例: APIキー)
+│   └── secrets.env           # 機密情報 (例: APIキー、OpenAI APIキー)
 ├── data/
 │   ├── .gitkeep              # 空ディレクトリをGitで追跡
 ├── requirements.txt          # 必要なパッケージ
 ├── run.bat                   # 基本実行用バッチファイル
 ├── run_dev.bat               # 開発環境用高機能バッチファイル
-└── update_libraries.bat      # ライブラリアップデート用バッチファイル
+├── update_libraries.bat      # ライブラリアップデート用バッチファイル
+└── run_git_ai.bat            # AI支援Git操作バッチファイル
 ```
 
 ## 実行スクリプトの違い
@@ -84,6 +92,53 @@ project_name/
 - インストール済みパッケージの一覧表示
 - ライブラリの依存関係を最新の状態に保ちたい場合に使用
 
+### run_git_ai.bat
+- Git操作をAI支援機能で強化するスクリプト
+- 複数のGitリポジトリに対する一括操作機能
+- OpenAI APIを使用した高度なGit支援機能
+- 対話式メニューで操作を選択可能
+- 自動化されたGitワークフロー機能
+
+## Git操作と支援機能
+
+本プロジェクトには、以下のGit一括操作と支援機能が含まれています：
+
+### 標準Git操作
+- **status**: 全リポジトリの状態を表示
+- **pull**: 全リポジトリの変更を取得
+- **push**: 全リポジトリの変更をプッシュ
+- **commit**: 全リポジトリの変更をコミット
+- **checkout**: 全リポジトリで指定ブランチに切り替え
+- **reset**: 全リポジトリの変更をリセット
+- **clean**: 全リポジトリの追跡されていないファイルを削除
+- **full-push**: 変更のadd, commit, pushを一回の操作で実行
+
+### AI強化Git機能
+- **ai-commit**: 変更内容からコミットメッセージを自動生成
+- **ai-full-push**: 変更をステージング、AI生成メッセージでコミット、プッシュまで一括実行（ブランチ戦略のヒント付き）
+- **analyze-pr**: プルリクエストを分析して要約を提供
+- **analyze-code**: 指定したファイルのコード品質を分析
+- **suggest-implementation**: 新機能の実装案を提案
+- **check-sensitive-info**: プッシュ前に機密情報の漏洩をチェック
+
+## 設定
+
+### OpenAI API設定 (config/secrets.env)
+```
+OPENAI_API_KEY=your_api_key_here
+```
+
+### Git設定 (config/settings.ini)
+```ini
+[GIT]
+use_openai=true
+default_branch=main
+auto_add=true
+
+[OPENAI]
+model=gpt-3.5-turbo
+```
+
 ## 注意事項
 
 - プロジェクト名には英数字、ハイフン、アンダースコアのみ使用可能です。
@@ -91,6 +146,7 @@ project_name/
 - `secrets.env` には機密情報が含まれるため、`.gitignore` に追加されています。
 - プロジェクトを生成するには `create_project.bat` を管理者権限で実行することを推奨します。
 - `src/` および `tests/` ディレクトリには `__init__.py` ファイルが自動生成され、Pythonパッケージとして認識されます。
+- AI支援機能を使用するには、OpenAI APIのキーが必要です。
 
 ## サポート情報
 
