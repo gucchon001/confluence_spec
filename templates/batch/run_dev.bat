@@ -10,6 +10,7 @@ set "DEFAULT_SCRIPT=src.main"
 set "APP_ENV="
 set "SCRIPT_TO_RUN="
 set "TEST_MODE="
+set "LOG_LEVEL="
 
 rem Parse command line arguments
 :parse_args
@@ -49,10 +50,12 @@ if "%~1"=="" (
     if "%CHOICE%"=="1" (
         set "APP_ENV=development"
         set "TEST_MODE=--test"
+        set "LOG_LEVEL=DEBUG"
     )
     if "%CHOICE%"=="2" (
         set "APP_ENV=production"
         set "TEST_MODE="
+        set "LOG_LEVEL=WARNING"
     )
     if not defined APP_ENV (
         echo Error: 無効な選択肢です。再実行してください。
@@ -119,8 +122,9 @@ if not "%CURRENT_HASH%"=="%STORED_HASH%" (
 
 rem Run the script
 echo [LOG] 環境: %APP_ENV%
+echo [LOG] ログレベル: %LOG_LEVEL%
 echo [LOG] 実行スクリプト: %SCRIPT_TO_RUN%
-%PYTHON_CMD% -m %SCRIPT_TO_RUN% %TEST_MODE%
+%PYTHON_CMD% -m %SCRIPT_TO_RUN% %TEST_MODE% --log-level=%LOG_LEVEL%
 if errorlevel 1 (
     echo Error: スクリプトの実行に失敗しました。
     pause

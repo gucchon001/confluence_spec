@@ -1,43 +1,47 @@
-from src.utils.environment import EnvironmentUtils as env
-from src.utils.logging_config import get_logger
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+メインモジュール
+"""
 
-# 名前付きロガーを取得
+import sys
+from pathlib import Path
+from src.utils.logging_config import get_logger
+from src.utils.environment import env  # 追加: env をインポート
+
+# ロガーの取得
 logger = get_logger(__name__)
 
-def setup_configurations():
+def setup():
     """
-    設定ファイルと機密情報をロードしてデータを取得します。
+    アプリケーションのセットアップを行います。
     """
-    # 環境変数のロード
-    env.load_env()
+    logger.info("アプリケーションをセットアップしています...")
+    
+    # 環境情報のログ出力
+    current_env = env.get_environment()
+    logger.info(f"実行環境: {current_env}")
+    
+    debug_mode = env.get_config_value(current_env, "DEBUG", False)
+    logger.info(f"デバッグモード: {debug_mode}")
+    
+    return True
 
-    # settings.ini の値を取得
-    temp_value = env.get_config_value("demo", "temp", default="N/A")
-    logger.info(f"取得した設定値: demo.temp = {temp_value}")
+def main():
+    """
+    メイン処理を実行します。
+    """
+    if not setup():
+        logger.error("セットアップに失敗しました。")
+        return 1
 
-    # secrets.env の値を取得
-    secrets_demo = env.get_env_var("secrets_demo", default="N/A")
-    logger.info(f"取得した秘密情報: secrets_demo = {secrets_demo}")
+    logger.info("処理を開始します...")
+    
+    # ここにメイン処理を記述
+    
+    logger.info("処理が完了しました。")
+    return 0
 
-    # 現在の環境
-    environment = env.get_environment()
-    logger.info(f"現在の環境: {environment}")
-
-    return temp_value, secrets_demo, environment
-
-def main() -> None:
-    """メイン処理"""
-    # 実行時のメッセージ
-    print("Hello, newProject!!")
-    logger.info("Hello, newProject!!")
-
-    # 設定値と秘密情報のロード
-    temp, secrets_demo, environment = setup_configurations()
-
-    # 設定完了メッセージの表示
-    print(f'設定ファイルの設定完了{{"demo": "{temp}"}}')
-    print(f'機密情報ファイルの設定完了{{"demo": "{secrets_demo}"}}')
-    print('ログ設定完了')
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

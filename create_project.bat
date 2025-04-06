@@ -75,6 +75,21 @@ mkdir "%PROJECT_NAME%\docs"
 
 echo [LOG] サブディレクトリの作成完了
 
+:: cursor rules のコピー
+if exist "%TEMPLATE_DIR%\rules" (
+    mkdir "%PROJECT_NAME%\.cursor"
+    mkdir "%PROJECT_NAME%\.cursor\rules"
+    xcopy "%TEMPLATE_DIR%\rules" "%PROJECT_NAME%\.cursor\rules" /E /I /Y > nul
+    if errorlevel 1 (
+         echo [ERROR] cursor rules のコピーに失敗しました。終了します。
+         goto END
+    )
+    attrib -R "%PROJECT_NAME%\.cursor\rules\*" /S /D
+    echo [LOG] cursor rules をプロジェクトにコピーしました。
+) else (
+    echo [WARNING] テンプレートに cursor rules フォルダが存在しません。
+)
+
 :: README.mdのコピー
 copy "%TEMPLATE_DIR%\README.md" "%PROJECT_NAME%\README.md" > nul
 if errorlevel 1 (
@@ -124,11 +139,64 @@ echo.
 echo [development]
 echo DEBUG = True
 echo LOG_LEVEL = DEBUG
+echo NOTIFY_SUCCESS = True
+echo NOTIFY_ERROR = True
 echo.
 echo [production]
 echo DEBUG = False
 echo LOG_LEVEL = WARNING
+echo NOTIFY_SUCCESS = False
+echo NOTIFY_ERROR = True
 echo.
+echo [slack]
+echo FOOTER_TEXT = プロジェクト通知
+echo ICON_URL = https://platform.slack-edge.com/img/default_application_icon.png
+echo DEFAULT_COLOR = #36a64f
+echo ERROR_COLOR = #ff0000
+echo SUCCESS_COLOR = #2eb886
+echo.
+echo [SPREADSHEET]
+echo SSID = 1fAmsevrYFI1WZsScsFnqtmQsmUKe6RUzS1a0hQ1KZeo
+echo TEST_SHEET = data
+echo.
+echo [SHEET_NAMES]
+echo users = users_all
+echo entry = entryprocess_all
+echo logs = logging
+echo.
+echo [BROWSER]
+echo headless = false
+echo auto_screenshot = true
+echo screenshot_dir = logs/screenshots
+echo screenshot_format = png
+echo screenshot_quality = 100
+echo screenshot_on_error = true
+echo window_width = 1920
+echo window_height = 1080
+echo page_load_timeout = 30
+echo timeout = 10
+echo additional_options = --disable-gpu,--no-sandbox
+echo.
+echo [LOGIN]
+echo url = https://example.com/login
+echo success_url = /dashboard
+echo max_attempts = 3
+echo redirect_timeout = 30
+echo element_timeout = 10
+echo page_load_wait = 2
+echo screenshot_on_login = true
+echo basic_auth_enabled = false
+echo # 以下の認証情報は secrets.env から取得されます
+echo # LOGIN_USERNAME, LOGIN_PASSWORD, LOGIN_ACCOUNT_KEY
+echo # LOGIN_BASIC_AUTH_USERNAME, LOGIN_BASIC_AUTH_PASSWORD
+echo third_field_name = account_key
+echo success_element_selector = .welcome-message
+echo success_element_type = css
+echo error_selector = .error-message
+echo error_type = css
+echo.
+echo [TESTS]
+echo DUMMY_LOGIN_URL = 
 ) > "%PROJECT_NAME%\config\settings.ini"
 attrib -R "%PROJECT_NAME%\config\settings.ini"
 echo [LOG] settings.ini を作成しました。
@@ -142,12 +210,32 @@ echo.
 echo # SpreadSheetJson
 echo SERVICE_ACCOUNT_FILE=config/spreadsheet.json
 echo.
+echo # GOOGLE SERVICE
+echo GOOGLE_APPLICATION_CREDENTIALS=config/google-service-account.json
+echo PROJECT_ID=your-project-id
+echo GCS_BUCKET_NAME=auth_gcs_test
+echo BIGQUERY_DATASET=auth_test
+echo BIGQUERY_TABLE=sample_table
+echo.
 echo # Slack
-echo SLACK_WEBHOOK=webhook_token
+echo SLACK_WEBHOOK_DEV=webhook_token_for_development
+echo SLACK_WEBHOOK_PROD=webhook_token_for_production
 echo SLACK_BOT_TOKEN=xoxb-xxxxxxxxtoken
 echo.
 echo # OPENAI
 echo OPENAI_API_KEY=test_api_key
+echo.
+echo # テスト用アカウント
+echo TEST_ACCOUNT_KEY=DEMO123
+echo TEST_USERNAME=testuser@example.com
+echo TEST_PASSWORD=password123
+echo.
+echo # ログイン認証情報
+echo LOGIN_USERNAME=your_username
+echo LOGIN_PASSWORD=your_secure_password
+echo LOGIN_ACCOUNT_KEY=your_account_key
+echo LOGIN_BASIC_AUTH_USERNAME=basic_auth_user
+echo LOGIN_BASIC_AUTH_PASSWORD=basic_auth_password
 ) > "%PROJECT_NAME%\config\secrets.env"
 attrib -R "%PROJECT_NAME%\config\secrets.env"
 echo [LOG] secrets.env を作成しました。
@@ -164,6 +252,8 @@ echo pyyaml==6.0.1
 echo google-api-python-client==2.108.0
 echo google-auth-httplib2==0.1.1
 echo google-auth-oauthlib==1.1.0
+echo google-cloud-bigquery==2.34.4
+echo google-cloud-storage==2.9.0
 echo anytree==2.9.1
 echo tqdm==4.66.1
 echo loguru==0.7.2
@@ -190,11 +280,43 @@ copy "%TEMPLATE_DIR%\python\logging_config_template.py" "%PROJECT_NAME%\src\util
 if errorlevel 1 echo [ERROR] logging_config.py のコピーに失敗しました。終了します。 && goto END
 attrib -R "%PROJECT_NAME%\src\utils\logging_config.py"
 
+:: slack_notifier_template.py をコピー
+copy "%TEMPLATE_DIR%\python\slack_notifier_template.py" "%PROJECT_NAME%\src\utils\slack_notifier.py" > nul
+if errorlevel 1 echo [ERROR] slack_notifier.py のコピーに失敗しました。終了します。 && goto END
+attrib -R "%PROJECT_NAME%\src\utils\slack_notifier.py"
+echo [LOG] slack_notifier.py をコピーしました。
+
+:: spreadsheet_template.py をコピー
+copy "%TEMPLATE_DIR%\python\spreadsheet_template.py" "%PROJECT_NAME%\src\utils\spreadsheet.py" > nul
+if errorlevel 1 echo [ERROR] spreadsheet.py のコピーに失敗しました。終了します。 && goto END
+attrib -R "%PROJECT_NAME%\src\utils\spreadsheet.py"
+echo [LOG] spreadsheet.py をコピーしました。
+
+:: bigquery_template.py をコピー
+copy "%TEMPLATE_DIR%\python\bigquery_template.py" "%PROJECT_NAME%\src\utils\bigquery.py" > nul
+if errorlevel 1 echo [ERROR] bigquery.py のコピーに失敗しました。終了します。 && goto END
+attrib -R "%PROJECT_NAME%\src\utils\bigquery.py"
+echo [LOG] bigquery.py をコピーしました。
+
 echo. > "%PROJECT_NAME%\src\modules\module1.py"
 attrib -R "%PROJECT_NAME%\src\modules\module1.py"
 
 echo. > "%PROJECT_NAME%\src\utils\helpers.py"
 attrib -R "%PROJECT_NAME%\src\utils\helpers.py"
+
+:: selenium モジュールのコピー
+if exist "%TEMPLATE_DIR%\python\selenium" (
+    echo [LOG] selenium モジュールをコピーします...
+    xcopy "%TEMPLATE_DIR%\python\selenium" "%PROJECT_NAME%\src\modules\selenium" /E /I /Y > nul
+    if errorlevel 1 (
+        echo [ERROR] selenium モジュールのコピーに失敗しました。
+        goto END
+    )
+    attrib -R "%PROJECT_NAME%\src\modules\selenium\*" /S /D
+    echo [LOG] selenium モジュールを src\modules\ にコピーしました。
+) else (
+    echo [WARNING] selenium モジュールのディレクトリが見つかりません: %TEMPLATE_DIR%\python\selenium
+)
 
 echo [LOG] src ディレクトリ内のファイル作成を完了しました。
 
@@ -207,6 +329,18 @@ if errorlevel 1 (
 )
 attrib -R "%PROJECT_NAME%\tests\*" /S /D
 echo [LOG] tests フォルダをコピーしました。
+
+:: bigquery_auth テストファイル処理
+if exist "%PROJECT_NAME%\tests\test_bigquery_auth.py" (
+    del "%PROJECT_NAME%\tests\test_bigquery_auth.py"
+    echo [LOG] 古い test_bigquery_auth.py を削除しました。
+)
+
+:: 新しいGoogle Cloud認証テストファイルをコピー
+copy "%TEMPLATE_DIR%\tests\test_google_cloud_auth.py" "%PROJECT_NAME%\tests\test_google_cloud_auth.py" > nul
+if errorlevel 1 echo [ERROR] test_google_cloud_auth.py のコピーに失敗しました。終了します。 && goto END
+attrib -R "%PROJECT_NAME%\tests\test_google_cloud_auth.py"
+echo [LOG] test_google_cloud_auth.py をコピーしました。
 
 :: run_dev.bat のコピー
 copy "%TEMPLATE_DIR%\batch\run_dev.bat" "%PROJECT_NAME%\run_dev.bat" > nul
@@ -281,6 +415,37 @@ cd ..
 :: プロジェクト内の全ファイルとディレクトリの読み取り専用属性を解除
 echo [LOG] すべてのファイルから読み取り専用属性を解除します...
 attrib -R /S /D "%PROJECT_NAME%\*"
+
+:: テスト用サンプルファイルのディレクトリを作成
+echo [LOG] テスト用サンプルファイルディレクトリを作成します...
+mkdir "%PROJECT_NAME%\tests\sample_files" 2>nul
+if errorlevel 1 (
+    echo [WARN] tests\sample_files ディレクトリの作成に失敗しました。既に存在する可能性があります。
+) else (
+    echo [LOG] tests\sample_files ディレクトリを作成しました。
+)
+
+:: テスト用サンプルファイルを作成
+(
+echo これはGCSアップロードテスト用のサンプルファイルです。
+echo.
+echo このファイルはproject作成時に自動生成されています。
+echo GCSへのファイルアップロード機能をテストするために使用されます。
+echo.
+echo 作成日時: %date% %time%
+) > "%PROJECT_NAME%\tests\sample_files\sample.txt"
+echo [LOG] テスト用サンプルファイル sample.txt を作成しました。
+
+:: selectors.csv ファイルの作成
+echo [LOG] selectors.csv ファイルを作成します...
+(
+echo group,name,selector_type,selector_value,description
+echo login,account_key,id,account_key,アカウントキー入力欄
+echo login,username,id,username,ユーザー名入力欄
+echo login,password,id,password,パスワード入力欄
+echo login,login_button,css,.loginbtn,ログインボタン
+) > "%PROJECT_NAME%\config\selectors.csv"
+echo [LOG] selectors.csv ファイルを作成しました。
 
 :: 作成完了メッセージ
 echo プロジェクト %PROJECT_NAME% の基本構造を作成しました。
