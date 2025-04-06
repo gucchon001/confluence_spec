@@ -1,0 +1,55 @@
+[GENERAL]
+app_name = GitBatchHelper
+version = 1.0.0
+debug = true
+
+[LOGGING]
+level = DEBUG
+log_dir = logs
+file_format = ${app_name}_%Y%m%d_%H%M%S.log
+console_enabled = true
+file_enabled = true
+max_size_mb = 5
+backup_count = 3
+
+[GIT]
+# Git一括操作の設定
+default_branch = main
+auto_add = true
+# OpenAI APIを使用して機能強化するかどうか
+use_openai = true
+
+[OPENAI]
+# OpenAI APIキー (空欄の場合は環境変数OPENAI_API_KEYを使用)
+api_key = 
+# 使用するモデル
+model = gpt-3.5-turbo
+# 最大トークン数
+max_tokens = 500
+
+[GITHUB]
+# GitHub APIトークン (空欄の場合は環境変数GITHUB_TOKENを使用)
+token = 
+# GitHub Enterprise URL (通常のGitHubの場合は空欄)
+api_url = 
+
+[BROWSER]
+# ブラウザの設定
+headless = true
+timeout = 30
+screenshot_dir = screenshots
+implicit_wait = 10
+page_load_timeout = 30
+
+[LOGIN]
+# ログイン設定は secrets.env から読み込まれます
+# このセクションにはセンシティブな情報を記載しないでください
+url = https://example.com/login
+form_selector = form#login
+username_field = input[name="username"]
+password_field = input[name="password"]
+
+[TESTING]
+# テスト関連の設定
+test_mode = true
+mock_responses = false 

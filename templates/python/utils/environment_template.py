@@ -101,19 +101,27 @@ class EnvironmentUtils:
     def get_log_level() -> str:
         """
         ログレベルを取得します。
-        コマンドラインで指定されていない場合は環境設定から取得します。
+        環境変数から取得できない場合は、環境設定から取得します。
         
         Returns:
             str: ログレベル（"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"）
         """
-        # コマンドラインから直接渡された場合
+        # 環境変数から直接ログレベルが指定されている場合
         log_level = EnvironmentUtils.get_env_var("LOG_LEVEL")
         if log_level:
             return log_level
         
-        # 設定ファイルから環境に応じたログレベルを取得
+        # 現在の環境を取得
         environment = EnvironmentUtils.get_environment()
-        return EnvironmentUtils.get_config_value(environment, "LOG_LEVEL", "INFO")
+        
+        # 環境に応じたログレベルを設定ファイルから取得
+        if environment == "development":
+            return EnvironmentUtils.get_config_value("development", "LOG_LEVEL", "DEBUG")
+        elif environment == "production":
+            return EnvironmentUtils.get_config_value("production", "LOG_LEVEL", "WARNING")
+        
+        # デフォルト値
+        return "INFO"
 
 
 # EnvironmentUtils クラスを env としてエクスポート

@@ -7,10 +7,12 @@ set "VENV_PATH=.\venv"
 set "PYTHON_CMD=python"
 set "PIP_CMD=pip"
 set "DEFAULT_SCRIPT=src.main"
+set "SCRIPT_TO_RUN=%DEFAULT_SCRIPT%"
 set "APP_ENV="
-set "SCRIPT_TO_RUN="
-set "TEST_MODE="
-set "LOG_LEVEL="
+
+rem プロジェクトの基準ディレクトリを取得
+set "PROJECT_ROOT=%~dp0"
+set "PROJECT_ROOT=%PROJECT_ROOT:~0,-1%"
 
 rem Parse command line arguments
 :parse_args
@@ -24,24 +26,19 @@ if "%~1"=="-m" (
 rem Display help message if --help is provided
 if "%~1"=="--help" (
     echo 使用方法:
-    echo   run.bat [オプション]
+    echo   run_dev.bat [オプション]
     echo
     echo オプション:
-    echo   --env [dev|prd] : 実行環境を指定します。
-    echo                         ^(dev=development, prd=production^)
-    echo   --help               : このヘルプを表示します。
-    echo
-    echo 環境モード:
-    echo   dev  : テストモードで実行、詳細なログとデバッグ情報を表示
-    echo   prd  : 本番運用環境、安定性重視でユーザー向け
+    echo   -m モジュール名    : 実行するPythonモジュールを指定します
+    echo   --help             : このヘルプを表示します。
     echo
     echo 例:
-    echo   run.bat --env dev
-    echo   run.bat --env prd
+    echo   run_dev.bat
+    echo   run_dev.bat -m utils.spreadsheet
     goto END
 )
 
-rem If no arguments are provided, prompt the user
+rem If no arguments are provided, prompt the user for environment
 if "%~1"=="" (
     echo 実行環境を選択してください:
     echo   1. Development (dev)
@@ -49,19 +46,14 @@ if "%~1"=="" (
     set /p "CHOICE=選択肢を入力してください (1/2): "
     if "%CHOICE%"=="1" (
         set "APP_ENV=development"
-        set "TEST_MODE=--test"
-        set "LOG_LEVEL=DEBUG"
     )
     if "%CHOICE%"=="2" (
         set "APP_ENV=production"
-        set "TEST_MODE="
-        set "LOG_LEVEL=WARNING"
     )
     if not defined APP_ENV (
         echo Error: 無効な選択肢です。再実行してください。
         exit /b 1
     )
-    if not defined SCRIPT_TO_RUN set "SCRIPT_TO_RUN=%DEFAULT_SCRIPT%"
 )
 
 rem Check if Python is installed
@@ -122,9 +114,13 @@ if not "%CURRENT_HASH%"=="%STORED_HASH%" (
 
 rem Run the script
 echo [LOG] 環境: %APP_ENV%
-echo [LOG] ログレベル: %LOG_LEVEL%
 echo [LOG] 実行スクリプト: %SCRIPT_TO_RUN%
-%PYTHON_CMD% -m %SCRIPT_TO_RUN% %TEST_MODE% --log-level=%LOG_LEVEL%
+
+rem 環境変数を設定
+set "APP_ENV=%APP_ENV%"
+
+rem Pythonスクリプトを実行
+%PYTHON_CMD% -m %SCRIPT_TO_RUN%
 if errorlevel 1 (
     echo Error: スクリプトの実行に失敗しました。
     pause

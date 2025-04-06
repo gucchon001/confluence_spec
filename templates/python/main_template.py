@@ -5,6 +5,7 @@
 """
 
 import sys
+import logging
 from pathlib import Path
 from src.utils.logging_config import get_logger
 from src.utils.environment import env  # 追加: env をインポート
@@ -22,6 +23,11 @@ def setup():
     current_env = env.get_environment()
     logger.info(f"実行環境: {current_env}")
     
+    # ログレベルの取得と設定
+    log_level = env.get_log_level()
+    logger.info(f"ログレベル: {log_level}")
+    
+    # 環境設定からデバッグモードを取得
     debug_mode = env.get_config_value(current_env, "DEBUG", False)
     logger.info(f"デバッグモード: {debug_mode}")
     

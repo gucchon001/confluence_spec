@@ -272,31 +272,57 @@ copy "%TEMPLATE_DIR%\python\main_template.py" "%PROJECT_NAME%\src\main.py" > nul
 if errorlevel 1 echo [ERROR] main.py のコピーに失敗しました。終了します。 && goto END
 attrib -R "%PROJECT_NAME%\src\main.py"
 
-copy "%TEMPLATE_DIR%\python\environment_template.py" "%PROJECT_NAME%\src\utils\environment.py" > nul
+:: utils ディレクトリのコピー
+if exist "%TEMPLATE_DIR%\python\utils" (
+    echo [LOG] utils ディレクトリをコピーします...
+    xcopy "%TEMPLATE_DIR%\python\utils" "%PROJECT_NAME%\src\utils" /E /I /Y > nul
+    if errorlevel 1 (
+        echo [ERROR] utils ディレクトリのコピーに失敗しました。終了します。
+        goto END
+    )
+    attrib -R "%PROJECT_NAME%\src\utils\*" /S /D
+    echo [LOG] utils ディレクトリをコピーしました。
+)
+
+:: templates/python直下のテンプレートファイルをsrc/utilsにコピー
+echo [LOG] Pythonテンプレートファイルをsrc/utilsにコピーします...
+copy "%TEMPLATE_DIR%\python\utils\environment_template.py" "%PROJECT_NAME%\src\utils\environment.py" > nul
 if errorlevel 1 echo [ERROR] environment.py のコピーに失敗しました。終了します。 && goto END
 attrib -R "%PROJECT_NAME%\src\utils\environment.py"
 
-copy "%TEMPLATE_DIR%\python\logging_config_template.py" "%PROJECT_NAME%\src\utils\logging_config.py" > nul
+copy "%TEMPLATE_DIR%\python\utils\logging_config_template.py" "%PROJECT_NAME%\src\utils\logging_config.py" > nul
 if errorlevel 1 echo [ERROR] logging_config.py のコピーに失敗しました。終了します。 && goto END
 attrib -R "%PROJECT_NAME%\src\utils\logging_config.py"
 
 :: slack_notifier_template.py をコピー
-copy "%TEMPLATE_DIR%\python\slack_notifier_template.py" "%PROJECT_NAME%\src\utils\slack_notifier.py" > nul
+copy "%TEMPLATE_DIR%\python\utils\slack_notifier_template.py" "%PROJECT_NAME%\src\utils\slack_notifier.py" > nul
 if errorlevel 1 echo [ERROR] slack_notifier.py のコピーに失敗しました。終了します。 && goto END
 attrib -R "%PROJECT_NAME%\src\utils\slack_notifier.py"
 echo [LOG] slack_notifier.py をコピーしました。
 
 :: spreadsheet_template.py をコピー
-copy "%TEMPLATE_DIR%\python\spreadsheet_template.py" "%PROJECT_NAME%\src\utils\spreadsheet.py" > nul
+copy "%TEMPLATE_DIR%\python\utils\spreadsheet_template.py" "%PROJECT_NAME%\src\utils\spreadsheet.py" > nul
 if errorlevel 1 echo [ERROR] spreadsheet.py のコピーに失敗しました。終了します。 && goto END
 attrib -R "%PROJECT_NAME%\src\utils\spreadsheet.py"
 echo [LOG] spreadsheet.py をコピーしました。
 
 :: bigquery_template.py をコピー
-copy "%TEMPLATE_DIR%\python\bigquery_template.py" "%PROJECT_NAME%\src\utils\bigquery.py" > nul
+copy "%TEMPLATE_DIR%\python\utils\bigquery_template.py" "%PROJECT_NAME%\src\utils\bigquery.py" > nul
 if errorlevel 1 echo [ERROR] bigquery.py のコピーに失敗しました。終了します。 && goto END
 attrib -R "%PROJECT_NAME%\src\utils\bigquery.py"
 echo [LOG] bigquery.py をコピーしました。
+
+:: git_batch.py をコピー
+copy "%TEMPLATE_DIR%\python\utils\git_batch.py" "%PROJECT_NAME%\src\utils\git_batch.py" > nul
+if errorlevel 1 echo [ERROR] git_batch.py のコピーに失敗しました。終了します。 && goto END
+attrib -R "%PROJECT_NAME%\src\utils\git_batch.py"
+echo [LOG] git_batch.py をコピーしました。
+
+:: openai_git_helper.py をコピー
+copy "%TEMPLATE_DIR%\python\utils\openai_git_helper.py" "%PROJECT_NAME%\src\utils\openai_git_helper.py" > nul
+if errorlevel 1 echo [ERROR] openai_git_helper.py のコピーに失敗しました。終了します。 && goto END
+attrib -R "%PROJECT_NAME%\src\utils\openai_git_helper.py"
+echo [LOG] openai_git_helper.py をコピーしました。
 
 echo. > "%PROJECT_NAME%\src\modules\module1.py"
 attrib -R "%PROJECT_NAME%\src\modules\module1.py"
@@ -359,6 +385,12 @@ copy "%TEMPLATE_DIR%\batch\update_libraries.bat" "%PROJECT_NAME%\update_librarie
 if errorlevel 1 echo [ERROR] update_libraries.bat のコピーに失敗しました。 && goto END
 attrib -R "%PROJECT_NAME%\update_libraries.bat"
 echo [LOG] update_libraries.bat をプロジェクトにコピーしました。
+
+:: run_git_ai.bat のコピー
+copy "%TEMPLATE_DIR%\batch\run_git_ai.bat" "%PROJECT_NAME%\run_git_ai.bat" > nul
+if errorlevel 1 echo [ERROR] run_git_ai.bat のコピーに失敗しました。 && goto END
+attrib -R "%PROJECT_NAME%\run_git_ai.bat"
+echo [LOG] run_git_ai.bat をプロジェクトにコピーしました。
 
 :: .gitignore のコピー
 copy "%TEMPLATE_DIR%\.gitignore" "%PROJECT_NAME%\.gitignore" > nul
