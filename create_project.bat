@@ -242,27 +242,45 @@ echo [LOG] secrets.env を作成しました。
 
 :: requirements.txt の作成
 (
-echo numpy==1.26.2
-echo pandas==2.1.3
-echo matplotlib==3.8.2
+echo # Core Libraries
+echo numpy==1.26.4
+echo pandas==2.2.1
+echo matplotlib==3.8.3
 echo openpyxl==3.1.2
 echo requests==2.31.0
-echo python-dotenv==1.0.0
 echo pyyaml==6.0.1
-echo google-api-python-client==2.108.0
-echo google-auth-httplib2==0.1.1
-echo google-auth-oauthlib==1.1.0
-echo google-cloud-bigquery==2.34.4
-echo google-cloud-storage==2.9.0
-echo anytree==2.9.1
-echo tqdm==4.66.1
+echo tqdm==4.66.2
 echo loguru==0.7.2
-echo pytest==7.4.3
+echo python-dotenv==1.0.1
+echo beautifulsoup4==4.12.3
+echo Pillow==10.2.0
+echo.
+echo # Google Cloud Libraries
+echo google-api-python-client==2.114.0
+echo google-auth-httplib2==0.1.1
+echo google-auth-oauthlib==1.2.0
+echo google-cloud-bigquery==3.18.0
+echo google-cloud-storage==2.14.0
+echo.
+echo # Web Automation
+echo selenium==4.18.1
+echo webdriver-manager==4.0.1
+echo.
+echo # AI/ML Libraries
+echo openai==1.12.0
+echo anytree==2.10.0
+echo.
+echo # Testing Tools
+echo pytest==7.4.4
 echo pytest-cov==4.1.0
 echo pytest-mock==3.12.0
-echo black==23.11.0
-echo flake8==6.1.0
+echo.
+echo # Development Tools
+echo black==24.2.0
+echo flake8==7.0.0
 echo mypy==1.7.1
+echo isort==5.13.2
+echo ruff==0.1.15
 ) > "%PROJECT_NAME%\requirements.txt"
 attrib -R "%PROJECT_NAME%\requirements.txt"
 echo [LOG] requirements.txt を作成しました。
